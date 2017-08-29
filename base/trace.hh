@@ -28,8 +28,8 @@
 
 // Definition of DPRINTF
 #define DPRINTF(x, format, ...) {           \
-  fprintf(stderr, "%s: ", x);               \
-  fprintf(stderr, format, ##__VA_ARGS__);   \
+  fprintf(stdout, "%s: ", x);               \
+  fprintf(stdout, format, ##__VA_ARGS__);   \
 }
 
 #endif

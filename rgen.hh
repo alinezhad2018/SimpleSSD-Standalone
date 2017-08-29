@@ -17,27 +17,49 @@
  * along with SimpleSSD.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Jie Zhang <jie@camelab.org>
+ *          Miryoung Kwon <mkwon@camelab.org>
  *          Donghyun Gouk <kukdh1@camelab.org>
  */
 
-#ifndef SSD_SIM_H_
-#define SSD_SIM_H_
+#ifndef __RGEN_HH__
+#define __RGEN_HH__
 
 #include <cinttypes>
 #include <iostream>
-#include <string>
-#include <cstring>
-#include <cstdio>
-#include <cstdlib>
-#include <exception>
-#include <fstream>
-#include <list>
-using namespace std;
 
-#include "hil.h"
-#include "simplessd/SimpleSSD_types.h"
-#include "Simulator.h"
+#include "trace.hh"
 #include "config.hh"
-#include "rgen.hh"
 
-#endif /* SSD_SIM_H_ */
+typedef struct _Request
+{
+  uint64_t PPN;
+  uint8_t  Oper;
+  uint32_t REQ_SIZE;
+  int IOGEN;
+}Request;
+
+class RequestGenerator
+{
+  public:
+    uint32_t MAX_REQ;
+    uint32_t cur_REQ;
+    uint32_t cur_page;
+    uint64_t start_PPN;
+    uint32_t REQ_SIZE;
+    Request curRequest;
+    std::string fn;
+    TraceReader* tr;
+    struct Read_Ratio {
+      uint32_t fraction;
+      uint32_t denominator;
+    } readratio;
+    struct Random_Ratio {
+      uint32_t fraction;
+      uint32_t denominator;
+    } randomratio;
+    int IOGEN;
+    RequestGenerator(Config &cfg);
+    ~RequestGenerator();
+    bool generate_request();
+};
+#endif

@@ -16,41 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with SimpleSSD.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authors: Donghyun Gouk <kukdh1@camelab.org>
+ * Authors: Jie Zhang <jie@camelab.org>
+ *          Miryoung Kwon <mkwon@camelab.org>
+ *          Donghyun Gouk <kukdh1@camelab.org>
  */
 
-#ifndef __CONFIG_HH__
-#define __CONFIG_HH__
+#ifndef __TRACE_READER_HH__
+#define __TRACE_READER_HH__
 
 #include <iostream>
+#include <fstream>
 #include <string>
 
-#include "simplessd/base_config.hh"
-#include "simplessd/ini.h"
-#include "base/misc.hh"
-
-class Config : public BaseConfig {
+class TraceReader{
   private:
-    static int parserHandler(void *, const char *, const char *, const char *);
-
+    std::ifstream fh;
+    std::string fn;
   public:
-    Config(std::string);
-
-    /** Request Generator Configuration area **/
-    int32_t MaxRequest;
-    int32_t StartPPN;
-    int32_t RequestSize;
-    int32_t ReadFraction;
-    int32_t ReadDenominator;
-    int32_t RandomFraction;
-    int32_t RandomDenominator;
-    int32_t RandomSeed;
-    int32_t IOGEN;
-    int32_t QueueDepth;
-
-    /** Trace Replayer Configuration area **/
-    bool Enable;
-    std::string TraceFile;
+    TraceReader(std::string filename);
+    ~TraceReader();
+    bool ReadIO(uint64_t &address, uint8_t &rw, uint32_t &length);
 };
 
 #endif

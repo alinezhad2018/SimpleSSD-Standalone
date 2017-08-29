@@ -28,52 +28,6 @@ Config::Config(std::string path) : BaseConfig(path) {
   }
 }
 
-TraceReader::TraceReader(std::string filename)
-{
-  fh.open(filename.c_str());
-  fn = filename;
-  if (!fh)
-  {
-    printf("File %s open FAIL!\n", filename.c_str());
-    std::cerr<<": ** CRITICAL ERROR: can NOT open trace file!\n";
-    std::terminate();
-  }
-}
-
-TraceReader::~TraceReader()
-{
-  fh.close();
-}
-
-bool TraceReader::ReadIO(uint64_t &address, uint8_t &rw, uint32_t &length)
-{
-  std::string timestamp;
-  std::string read_write;
-  std::string str_address;
-  std::string str_length;
-  if (fh.eof()) return false;
-  fh >> timestamp >> read_write >> str_address >> str_length >> timestamp;
-
-  address = (uint64_t)strtoul(str_address.c_str(), NULL, 10);
-  length = (uint32_t)strtoul(str_length.c_str(), NULL, 10);
-
-  address = (uint64_t)(address % (2 * 1024 * 1024 * 300)) * (uint64_t)512;
-  if (length % 8 > 0) length = length / 8 + 1;
-  else length = length / 8;
-  if (read_write == "W"){
-    rw = 1;
-    printf("address = %llu\tlength = %u\n", address, length);
-  }
-  else if (read_write == "R"){
-    rw = 0;
-    printf("address = %llu\tlength = %u\n", address, length);
-  }
-  else{
-    return this->ReadIO(address, rw, length);
-  }
-  return true;
-}
-
 int Config::parserHandler(void *context, const char* section, const char* name, const char *value) {
   Config *pThis = (Config *)context;
 
@@ -107,6 +61,11 @@ int Config::parserHandler(void *context, const char* section, const char* name, 
     }
     else if (MATCH_NAME("QueueDepth")) {
       pThis->QueueDepth = toInt(value);
+    }
+  }
+  else if (MATCH_SECTION("trace")) {
+    if (MATCH_NAME("Enable")) {
+      pThis->Enable = toInt(value);
     }
     else if (MATCH_NAME("TraceFile")) {
       pThis->TraceFile = value;

@@ -62,22 +62,32 @@ ELSE ()
 ENDIF ()
 
 # Source files
+SET (GEM5_COMPATIBLE_SOURCE_FILES
+  base/types.cc
+)
+
+SET (GEM5_COMPATIBLE_INCLUDE_FILES
+  base/types.hh
+  base/trace.hh
+  base/misc.hh
+)
+
 SET (STANDALONE_SOURCE_FILES
   ssd_sim.cpp
   Simulator.cpp
   config.cc
-  base/types.cc
   hil.cpp
+  trace.cc
+  rgen.cc
 )
 
 SET (STANDALONE_INCLUDE_FILES
   ssd_sim.h
   Simulator.h
   config.hh
-  base/types.hh
-  base/trace.hh
-  base/misc.hh
   hil.h
+  trace.hh
+  rgen.hh
 )
 
 SET (SIMPLESSD_SOURCE_FILES
@@ -118,13 +128,17 @@ SET (SIMPLESSD_INCLUDE_FILES
 )
 
 SOURCE_GROUP("Header Files\\Standalone" FILES ${STANDALONE_INCLUDE_FILES})
+SOURCE_GROUP("Header Files\\Standalone\\base" FILES ${GEM5_COMPATIBLE_INCLUDE_FILES})
 SOURCE_GROUP("Header Files\\SimpleSSD" FILES ${SIMPLESSD_INCLUDE_FILES})
 SOURCE_GROUP("Source Files\\Standalone" FILES ${STANDALONE_SOURCE_FILES})
+SOURCE_GROUP("Source Files\\Standalone\\base" FILES ${GEM5_COMPATIBLE_SOURCE_FILES})
 SOURCE_GROUP("Source Files\\SimpleSSD" FILES ${SIMPLESSD_SOURCE_FILES})
 ADD_EXECUTABLE (
   SimpleSSD-Standalone
   ${STANDALONE_INCLUDE_FILES}
+  ${GEM5_COMPATIBLE_INCLUDE_FILES}
   ${SIMPLESSD_INCLUDE_FILES}
   ${STANDALONE_SOURCE_FILES}
+  ${GEM5_COMPATIBLE_SOURCE_FILES}
   ${SIMPLESSD_SOURCE_FILES}
 )

@@ -22,67 +22,6 @@
 
 #include "ssd_sim.h"
 
-RequestGenerator::RequestGenerator(uint32_t _MAX_REQ, uint64_t _start_PPN,
-                                   uint32_t _REQ_SIZE, uint32_t _read_fraction,
-                                   uint32_t _read_denominator, uint32_t _random_fraction,
-                                   uint32_t _random_denominator, uint32_t _randSeed,
-                                   int _IOGEN, string _fn) {
-  cur_page = _MAX_REQ;
-  MAX_REQ = _MAX_REQ;
-  cur_REQ = 0;
-
-  start_PPN = _start_PPN;
-  REQ_SIZE = _REQ_SIZE;
-  curRequest.PPN = 0;
-  curRequest.REQ_SIZE = 0;
-  curRequest.Oper = OPER_READ;
-  curRequest.IOGEN = 0;
-  readratio.fraction = _read_fraction;
-  readratio.denominator = _read_denominator;
-  randomratio.fraction = _random_fraction;
-  randomratio.denominator = _random_denominator;
-  srand(_randSeed);
-  IOGEN = _IOGEN;
-  fn = _fn;
-  if (fn != "none") tr = new TraceReader(fn);
-}
-
-RequestGenerator::~RequestGenerator() {
-  // DO NOTHING
-}
-
-bool RequestGenerator::generate_request(){
-  if (fn == "none"){
-    if (cur_REQ >= MAX_REQ) {
-      return false;
-    }
-
-    if (cur_REQ % randomratio.denominator < randomratio.fraction) { //random access
-      int cmd = rand() % 100; //for testing
-      curRequest.PPN = (uint64_t)((uint64_t)(rand()% (MAX_REQ * REQ_SIZE / 2))*(uint64_t)8192);
-    }
-    else {
-      curRequest.PPN = start_PPN; //8192 is default page size
-      start_PPN += 4096*REQ_SIZE;
-    }
-
-    if (cur_REQ % readratio.denominator < readratio.fraction) {
-      curRequest.Oper = OPER_READ;
-    }
-    else {
-      curRequest.Oper = OPER_WRITE;
-    }
-
-    curRequest.REQ_SIZE = REQ_SIZE;
-    curRequest.IOGEN = IOGEN;
-    cur_REQ++;
-  }
-  else{
-    return tr->ReadIO(curRequest.PPN, curRequest.Oper, curRequest.REQ_SIZE);
-  }
-  return true;
-}
-
 /*==============================
 Main
 ==============================*/
@@ -106,10 +45,7 @@ int main(int argc, char* argv[])
     //*********initialize trace generator*****************
     currentTick = 0;
     std::list<Tick> request_queue;
-    RequestGenerator* RG = new RequestGenerator(
-      cfg.MaxRequest, cfg.StartPPN, cfg.RequestSize, cfg.ReadFraction, cfg.ReadDenominator,
-      cfg.RandomFraction, cfg.RandomDenominator, cfg.RandomSeed, cfg.IOGEN, cfg.TraceFile
-    );
+    RequestGenerator* RG = new RequestGenerator(cfg);
     cout << "Trace file is" << cfg.TraceFile << "\n";
     sampled_period = EPOCH_INTERVAL;
     //*****************************************************
